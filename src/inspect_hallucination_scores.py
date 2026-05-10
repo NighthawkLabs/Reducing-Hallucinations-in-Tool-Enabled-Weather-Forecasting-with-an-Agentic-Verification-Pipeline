@@ -1,7 +1,9 @@
 import pandas as pd
 
+# path to the detailed hallucination scoring output created by the evaluation script 
 SCORES_PATH = "results/system_hallucination_detailed_scores.csv"
 
+# load the detailed per case hallucination scores into a dataframe 
 df = pd.read_csv(SCORES_PATH)
 
 print("\nColumns:")
@@ -9,7 +11,14 @@ print(df.columns.tolist())
 
 print("\nCounts by system and hallucinated:")
 print(df.groupby(["system", "hallucinated"]).size())
+"""
+# Aggregate summary by system
 
+Compute the main evaluation metrics for each system:
+total number of cases
+number of hallucinated/problematic cases
+field-level match rates
+"""
 print("\nSummary by system:")
 summary = df.groupby("system").agg(
     total_cases=("case_id", "count"),
@@ -21,6 +30,10 @@ summary = df.groupby("system").agg(
 )
 summary["hallucination_rate"] = summary["hallucinated_cases"] / summary["total_cases"]
 print(summary)
+
+"""
+Inspect sample hallucinated single-tool cases 
+"""
 
 print("\nSample hallucinated single-tool cases:")
 hallucinated_single = df[(df["system"] == "single_tool") & (df["hallucinated"] == True)]
