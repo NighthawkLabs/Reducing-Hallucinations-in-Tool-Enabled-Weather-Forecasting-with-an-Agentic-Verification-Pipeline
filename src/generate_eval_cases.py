@@ -4,19 +4,19 @@ import joblib
 import pandas as pd
 import numpy as np
 
-
-# -----------------------------
 # Config
-# -----------------------------
 
+# paths to the dataset, trained model, and output files 
 DATA_PATH = "../data/clean/noaaDataCleaned.csv"
 MODEL_PATH = "models/baseline_model.pkl"
 
 OUTPUT_JSONL = "../results/eval_forecast_cases.jsonl"
 OUTPUT_CSV = "../results/eval_forecast_cases.csv"
 
+# weather variables being used by the model 
 FEATURE_COLUMNS = ["temperature", "dew_point", "wind_speed"]
 
+# Prepare evaluation with the previous 72 hours of weather data to predict conditions 24-hours ahead. Generate 1000 cases 
 WINDOW_SIZE = 72
 FORECAST_HORIZON = 24
 NUM_CASES = 1000
@@ -25,6 +25,9 @@ NUM_CASES = 1000
 # Helper functions
 
 def load_dataset():
+    """
+    Load and prep the dataset 
+    """
     df = pd.read_csv(DATA_PATH)
 
     if "DATE" in df.columns:
@@ -69,6 +72,11 @@ def select_request_indices(df):
 
 
 def make_case(df, model, request_index, case_id):
+    """
+    Creates one forecast evaluation case 
+
+    This function builds the 72-hour model input window, gets the Random Forest prediction, retrieves the actual NOAA observations, and stores both as a structured record 
+    """
     values = df[FEATURE_COLUMNS].values
 
     target_index = request_index + FORECAST_HORIZON
@@ -107,6 +115,9 @@ def make_case(df, model, request_index, case_id):
 
 
 def flatten_case(case):
+    """
+    Convert a nested evaluation case into a flat dictionary for CSV output 
+    """
     return {
         "case_id": case["case_id"],
         "request_time": case["request_time"],
@@ -125,6 +136,9 @@ def flatten_case(case):
 
 
 def main():
+    """
+    Generate forecast evlaution cases for the LLM systems 
+    """
     os.makedirs("results", exist_ok=True)
 
     print("Loading dataset...")
