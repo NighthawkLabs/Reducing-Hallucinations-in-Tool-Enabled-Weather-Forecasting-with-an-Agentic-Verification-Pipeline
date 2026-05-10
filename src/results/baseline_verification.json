@@ -1,0 +1,51 @@
+{
+  "status": "success",
+  "data_path": "../data/clean/noaaDataCleaned.csv",
+  "model_path": "models/baseline_model.pkl",
+  "dataset_rows": 26130,
+  "date_range": {
+    "start": "2003-01-01 00:00:00",
+    "end": "2006-01-01 23:00:00"
+  },
+  "feature_columns": [
+    "temperature",
+    "dew_point",
+    "wind_speed"
+  ],
+  "window_size_hours": 72,
+  "forecast_horizon_hours": 24,
+  "windowed_X_shape": [
+    26034,
+    216
+  ],
+  "windowed_y_shape": [
+    26034,
+    3
+  ],
+  "metrics": {
+    "temperature_mae": 4.635913193777607,
+    "dew_point_mae": 4.628044939504513,
+    "wind_speed_mae": 3.4253005569425774,
+    "average_mae": 4.229752896741566,
+    "test_examples": 5207
+  },
+  "example_forecast": {
+    "request_time": "2005-07-22 12:00:00",
+    "forecast_target_time": "2005-07-23 12:00:00",
+    "prediction": {
+      "temperature": 83.91,
+      "dew_point": 71.32,
+      "wind_speed": 7.33
+    },
+    "actual": {
+      "temperature": 88.0,
+      "dew_point": 70.0,
+      "wind_speed": 9.0
+    },
+    "absolute_error": {
+      "temperature": 4.090000000000003,
+      "dew_point": 1.3199999999999932,
+      "wind_speed": 1.67
+    }
+  }
+}

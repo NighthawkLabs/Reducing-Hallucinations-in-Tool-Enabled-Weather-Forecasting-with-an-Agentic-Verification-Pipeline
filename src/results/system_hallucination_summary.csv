@@ -1,0 +1,3 @@
+system,total_cases,hallucinated_cases,hallucination_rate,target_time_match_rate,temperature_match_rate,dew_point_match_rate,wind_speed_match_rate,unsupported_claim_cases
+agentic,50,0,0.0,1.0,1.0,1.0,1.0,0
+single_tool,50,27,0.54,0.84,0.86,0.84,0.86,22

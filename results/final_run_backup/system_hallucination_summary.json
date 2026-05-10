@@ -1,0 +1,28 @@
+{
+  "agentic": {
+    "total_cases": 1000,
+    "value_hallucinated_cases": 0,
+    "value_hallucination_rate": 0.0,
+    "policy_violation_cases": 0,
+    "policy_violation_rate": 0.0,
+    "response_issue_cases": 0,
+    "response_issue_rate": 0.0,
+    "target_time_match_rate": 1.0,
+    "temperature_match_rate": 1.0,
+    "dew_point_match_rate": 1.0,
+    "wind_speed_match_rate": 1.0
+  },
+  "single_tool": {
+    "total_cases": 1000,
+    "value_hallucinated_cases": 916,
+    "value_hallucination_rate": 0.916,
+    "policy_violation_cases": 435,
+    "policy_violation_rate": 0.435,
+    "response_issue_cases": 966,
+    "response_issue_rate": 0.966,
+    "target_time_match_rate": 0.088,
+    "temperature_match_rate": 0.782,
+    "dew_point_match_rate": 0.781,
+    "wind_speed_match_rate": 0.78
+  }
+}

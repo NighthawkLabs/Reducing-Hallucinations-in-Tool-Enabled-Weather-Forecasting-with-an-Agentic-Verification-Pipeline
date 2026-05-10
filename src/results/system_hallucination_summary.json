@@ -1,0 +1,22 @@
+{
+  "agentic": {
+    "total_cases": 50,
+    "hallucinated_cases": 0,
+    "hallucination_rate": 0.0,
+    "target_time_match_rate": 1.0,
+    "temperature_match_rate": 1.0,
+    "dew_point_match_rate": 1.0,
+    "wind_speed_match_rate": 1.0,
+    "unsupported_claim_cases": 0
+  },
+  "single_tool": {
+    "total_cases": 50,
+    "hallucinated_cases": 27,
+    "hallucination_rate": 0.54,
+    "target_time_match_rate": 0.84,
+    "temperature_match_rate": 0.86,
+    "dew_point_match_rate": 0.84,
+    "wind_speed_match_rate": 0.86,
+    "unsupported_claim_cases": 22
+  }
+}

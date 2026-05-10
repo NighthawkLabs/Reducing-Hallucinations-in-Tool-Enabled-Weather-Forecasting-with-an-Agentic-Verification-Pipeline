@@ -1,0 +1,12 @@
+{
+  "system": "random_forest_ml_baseline",
+  "total_cases": 1000,
+  "temperature_mae": 4.7266,
+  "dew_point_mae": 4.702,
+  "wind_speed_mae": 3.3971,
+  "average_mae": 4.2752,
+  "max_temperature_abs_error": 30.17,
+  "max_dew_point_abs_error": 30.59,
+  "max_wind_speed_abs_error": 28.03,
+  "max_average_abs_error": 23.6933
+}

@@ -1,0 +1,2 @@
+system,total_cases,temperature_mae,dew_point_mae,wind_speed_mae,average_mae,max_temperature_abs_error,max_dew_point_abs_error,max_wind_speed_abs_error,max_average_abs_error
+random_forest_ml_baseline,1000,4.7266,4.702,3.3971,4.2752,30.17,30.59,28.03,23.6933
