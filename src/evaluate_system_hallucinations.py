@@ -1,3 +1,19 @@
+"""
+Legacy evaluation script for the agentic verification system.
+
+This file represents the first iteration of the hallucination evaluation
+pipeline. It was used during earlier development to score the agentic system's
+responses against the expected forecasting tool output.
+
+This script has been replaced by evaluate_system_hallucinations2.py after the
+evaluation design was updated to better separate forecast value hallucinations,
+policy violations, missing fields, mismatched fields, and unsupported terms.
+
+It is kept in the repository for transparency and to show the evolution of the
+project's evaluation methodology, but evaluate_system_hallucinations2.py should
+be treated as the current version used for final results.
+"""
+
 import json
 import os
 import re
