@@ -3,11 +3,14 @@ import json
 import os
 import csv
 
-
 # Config
+# These paths are relative to this script's location. 
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SRC_DIR)
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
+# Default in/output files used by the forecasting accuracy evaluation 
+# Input JSONL file contains the generated evaluation cases, the model predictions, and the actual target values 
 
 DEFAULT_INPUT_JSONL = os.path.join(RESULTS_DIR, "eval_forecast_cases.jsonl")
 DEFAULT_DETAILED_CSV = os.path.join(RESULTS_DIR, "forecast_accuracy_detailed_scores.csv")
@@ -17,8 +20,11 @@ DEFAULT_SUMMARY_JSON = os.path.join(RESULTS_DIR, "forecast_accuracy_summary.json
 
 # File helpers
 
-
 def read_jsonl(path):
+    """
+    Read a JSON file where each non-empty line is one JSON object. 
+    This project stores evaluation cases as JSONL files so each forecast case can be processed independenty while keeping the file easy to inspect
+    """
     records = []
 
     if not os.path.exists(path):
@@ -34,6 +40,9 @@ def read_jsonl(path):
 
 
 def write_csv(rows, path):
+    """
+    Writes a list of dictionaries to a CSV file. The column names are taken from the keys of the first row
+    """
     if not rows:
         return
 
@@ -46,6 +55,9 @@ def write_csv(rows, path):
 
 
 def write_json(data, path):
+    """
+    Writes summary results to a JSONL 
+    """
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
@@ -119,6 +131,11 @@ def get_actual(record):
 
 
 def score_record(record):
+    """
+    Score one forecast case by comparing the ML model prediction against the actual observed values 
+
+    This evaluation is separate from the LLM hallucination evaluation. 
+    """
     pred = get_prediction(record)
     actual = get_actual(record)
 
@@ -154,6 +171,10 @@ def score_record(record):
 
 
 def summarize(scores):
+    """
+    Aggregates all the pre-case scores into overall forecast accuracy metrics like MAE 
+    """
+    
     temperature_errors = [row["temperature_abs_error"] for row in scores]
     dew_point_errors = [row["dew_point_abs_error"] for row in scores]
     wind_speed_errors = [row["wind_speed_abs_error"] for row in scores]
