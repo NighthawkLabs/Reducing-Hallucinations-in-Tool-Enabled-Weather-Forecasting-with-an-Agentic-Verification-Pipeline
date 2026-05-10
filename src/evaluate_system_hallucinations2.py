@@ -4,19 +4,22 @@ import re
 import csv
 
 
-# -----------------------------
-# Config
-# -----------------------------
 
+# Config
+
+# Build paths relative to this script 
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SRC_DIR)
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
+# Input files for the two systems being compared 
+# Each file contains one JSON record per line with the model/tool output 
 INPUT_FILES = {
     "single_tool": os.path.join(RESULTS_DIR, "single_tool_eval_outputs.jsonl"),
     "agentic": os.path.join(RESULTS_DIR, "agentic_eval_outputs.jsonl"),
 }
 
+# Output files for the combined hallucination evaluation 
 OUTPUT_DETAILED_CSV = os.path.join(
     RESULTS_DIR,
     "system_hallucination_detailed_scores.csv"
@@ -32,12 +35,10 @@ OUTPUT_SUMMARY_JSON = os.path.join(
     "system_hallucination_summary.json"
 )
 
+# small tolerance for numeric comparisons 
 NUMERIC_TOLERANCE = 0.05
 
-
-# -----------------------------
 # Helpers
-# -----------------------------
 
 def normalize_text(text):
     return text.lower().replace("_", " ")
@@ -54,6 +55,9 @@ def extract_datetime(text):
 
 
 def extract_number_near_label(text, labels):
+    """
+    Extracts a number appearing near one of the provided labels. This is used to recover structured forecast values from the LLMs response
+    """
     normalized = normalize_text(text)
 
     for label in labels:
@@ -77,11 +81,17 @@ def extract_number_near_label(text, labels):
 
 
 def extract_all_numbers(text):
+    """
+    Extract all integer or decimal numbers. used as a backup when label-based extraction fails 
+    """
     pattern = r"-?\d+(?:\.\d+)?"
     return [float(x) for x in re.findall(pattern, text)]
 
 
 def extract_llm_forecast_values(llm_response):
+    """
+    Extract the forecast target time and predicted weather values from the final LLM response 
+    """
     target_time = extract_datetime(llm_response)
 
     temperature = extract_number_near_label(
@@ -99,6 +109,8 @@ def extract_llm_forecast_values(llm_response):
         ["predicted wind speed", "wind speed", "wind"]
     )
 
+    # Fallback extraction based on number order after the timestamp 
+    
     if temperature is None or dew_point is None or wind_speed is None:
         text_after_time = llm_response
 
@@ -147,6 +159,9 @@ def get_response_text(record):
 
 
 def get_system_name(record, fallback_system):
+    """
+    Determines if the record belongs to single-tool LLM system or the agentic system 
+    """
     if "system" in record:
         return record["system"]
 
@@ -268,11 +283,22 @@ def detect_unsupported_terms(response):
     return found
 
 
-# -----------------------------
 # Scoring
-# -----------------------------
 
 def score_record(record, fallback_system):
+    """
+    Score one LLM response against its expected structured forecast output.
+
+    The score separates two kinds of problems:
+
+    1. Value hallucinations:
+       Missing or mismatched forecast values.
+
+    2. Policy violations:
+       Extra unsupported terms or claims outside the tool output.
+
+    A response issue is counted if either type of problem occurs.
+    """
     response = get_response_text(record)
     expected = get_expected_prediction(record)
     extracted = extract_llm_forecast_values(response)
