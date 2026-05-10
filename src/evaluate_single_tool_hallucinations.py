@@ -7,16 +7,19 @@ import csv
 
 
 # Config
+# Paths are relative to this script
 
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SRC_DIR)
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
+# input file containing the single-tool LLM responses to evaluate  
 INPUT_JSONL_PATH = os.path.join(
     RESULTS_DIR,
     "single_tool_local_llm_outputs.jsonl"
 )
 
+# Output files for detailed results
 OUTPUT_CSV_PATH = os.path.join(
     RESULTS_DIR,
     "single_tool_hallucination_scores.csv"
@@ -33,6 +36,11 @@ NUMERIC_TOLERANCE = 0.05
 # File helpers
 
 def read_jsonl(path):
+    """
+    Read a JSONL file where each non-empty line is one JSON object 
+
+    single-tool output file stores one forecast/response record per line
+    """
     records = []
 
     if not os.path.exists(path):
@@ -155,6 +163,9 @@ def extract_number_near_label(text, labels):
 
 
 def extract_all_numbers(text):
+    """
+    Extracts every integer or decimal. used if label-based extraction fails 
+    """
     pattern = r"-?\d+(?:\.\d+)?"
     return [float(x) for x in re.findall(pattern, text)]
 
@@ -212,6 +223,9 @@ def extract_llm_forecast_values(llm_response):
 
 
 def numeric_match(expected, observed, tolerance=NUMERIC_TOLERANCE):
+    """
+    Check whether an observed LLM value matches the expected tool value with a small tolerance allowed for rounding errors
+    """
     if observed is None:
         return False
 
@@ -312,6 +326,9 @@ def get_expected_prediction(record):
 
 
 def score_record(record):
+    """
+    Score one LLM response at a time against the expected structured forecast output
+    """
     request_time = record["request_time"]
     llm_response = record.get("llm_response", "")
 
