@@ -1,3 +1,22 @@
+"""
+Legacy single-tool LLM baseline prototype.
+
+This file was an early version of the single-tool baseline pipeline. It used
+the OpenRouter/OpenAI API to generate a response from one forecast tool call
+for a single request time.
+
+This script was not used for the final evaluation results. The final project
+uses the local TinyLlama-based batch runner, run_single_tool_on_eval_cases.py,
+which processes the shared eval_forecast_cases.jsonl file so the single-tool
+baseline and agentic verification system are evaluated on the same forecast
+cases.
+
+This file is kept in the repository for transparency and to show the evolution
+of the project, but it should be treated as a legacy prototype rather than the
+final experimental pipeline.
+"""
+
+
 import os
 import json
 from datetime import datetime
