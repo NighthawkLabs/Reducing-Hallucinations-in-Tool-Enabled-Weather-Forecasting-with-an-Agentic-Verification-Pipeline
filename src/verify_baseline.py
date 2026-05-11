@@ -7,19 +7,26 @@ import numpy as np
 from sklearn.metrics import mean_absolute_error
 
 
-# -----------------------------
 # Config
-# -----------------------------
 
 DATA_PATHS = [
     
     "../data/clean/noaaDataCleaned.csv",
 ]
+# Possible paths to the trained Random Forest model.
+#
+# Note:
+# The saved baseline_model.pkl file was not uploaded to GitHub because it
+# exceeded GitHub's file size limit. To regenerate it, run:
+#
+#     python src/train_baseline.py
+#
+# After training, the model should be saved to models/baseline_model.pkl.
 
 MODEL_PATHS = [
     "models/baseline_model.pkl",
 ]
-
+# Weather variables used as both model inputs and prediction targets.
 FEATURE_COLUMNS = ["temperature", "dew_point", "wind_speed"]
 WINDOW_SIZE = 72
 FORECAST_HORIZON = 24
@@ -27,11 +34,15 @@ FORECAST_HORIZON = 24
 OUTPUT_PATH = "results/baseline_verification.json"
 
 
-# -----------------------------
 # Helpers
-# -----------------------------
 
 def find_existing_path(possible_paths):
+    """
+    Return the first path in possible_paths that exists.
+
+    This makes the script more flexible if files are moved or renamed during
+    development. If no path exists, the function returns None.
+    """
     for path in possible_paths:
         if os.path.exists(path):
             return path
@@ -39,6 +50,18 @@ def find_existing_path(possible_paths):
 
 
 def load_dataset():
+    """
+    Load and validate the cleaned NOAA weather dataset.
+
+    The dataset must contain:
+    - a date or DATE column
+    - temperature
+    - dew point
+    - wind speed
+
+    The date column is normalized to lowercase "date" so the rest of the
+    script can use one consistent column name.
+    """
     data_path = find_existing_path(DATA_PATHS)
 
     if data_path is None:
@@ -68,6 +91,13 @@ def load_dataset():
 
 
 def load_model():
+    """
+    Load the trained forecasting model.
+
+    The model is normally saved with joblib. A pickle fallback is included in
+    case the model file was saved using pickle in an earlier version of the
+    project.
+    """
     model_path = find_existing_path(MODEL_PATHS) 
 
     if model_path is None:
@@ -93,6 +123,16 @@ def load_model():
 
 
 def create_windows(df):
+    """
+    Recreate the model input windows from the cleaned dataset.
+
+    Each example uses:
+    - the previous 72 hours of weather observations as input
+    - the weather values 24 hours later as the target
+
+    The windows are flattened because the Random Forest model expects 2D
+    tabular input, not 3D sequence input.
+    """
     values = df[FEATURE_COLUMNS].values
 
     X = []
@@ -111,6 +151,13 @@ def create_windows(df):
 
 
 def evaluate_model(model, X, y):
+    """
+    Evaluate the trained model using the same chronological test split style
+    used in the training script.
+
+    The final 20% of examples are treated as the test set. This avoids random
+    mixing of past and future data, which is important for a forecasting task.
+    """
     # Same style as your previous split: first 80% train, last 20% test
     split_index = int(len(X) * 0.8)
 
@@ -181,9 +228,7 @@ def single_forecast_check(model, df):
     }
 
 
-# -----------------------------
 # Main
-# -----------------------------
 
 def main():
     os.makedirs("results", exist_ok=True)
