@@ -4,12 +4,14 @@ from datetime import datetime
 from llama_cpp import Llama
 
 
-# -----------------------------
 # Config
-# -----------------------------
+
+# path to the local GGUF model used to generate responses 
 
 MODEL_PATH = "/home/sgibso34/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 
+# Build paths relative to this script so it can be run from different working
+# directories without hardcoding the full project path.
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SRC_DIR)
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
@@ -21,11 +23,29 @@ OUTPUT_JSONL = os.path.join(RESULTS_DIR, "single_tool_eval_outputs.jsonl")
 MAX_CASES = None
 
 
-# -----------------------------
+# ---------------------------------------------------------------------
+# Reproducibility note
+# ---------------------------------------------------------------------
+# The trained Random Forest model file, baseline_model.pkl, was not uploaded
+# to GitHub because it exceeded GitHub's file size limit. To regenerate the
+# saved forecasting model, run:
+#
+#     python src/train_baseline.py
+#
+# After regenerating the model, you can regenerate the evaluation cases with:
+#
+#     python src/generate_eval_cases.py
+#
+# This script assumes eval_forecast_cases.jsonl already exists.
+# ---------------------------------------------------------------------
+
+
 # File helpers
-# -----------------------------
 
 def read_jsonl(path):
+    """
+    Reads the JSONL file where each non-empty line is one json object. 
+    """
     records = []
 
     if not os.path.exists(path):
@@ -40,9 +60,7 @@ def read_jsonl(path):
     return records
 
 
-# -----------------------------
 # Prompting
-# -----------------------------
 
 def build_tool_output(case):
     """
@@ -90,6 +108,13 @@ Write a concise final answer.
 
 
 def generate_response(llm, prompt):
+    """
+    Generate a natural-language forecast response from the local LLM.
+
+    This is the key difference from the agentic pipeline: the LLM directly
+    produces the final answer, so any unsupported additions or changed values
+    must be caught later by the hallucination evaluator.
+    """
     output = llm(
         prompt,
         max_tokens=256,
@@ -101,9 +126,7 @@ def generate_response(llm, prompt):
     return output["choices"][0]["text"].strip()
 
 
-# -----------------------------
 # Main
-# -----------------------------
 
 def main():
     os.makedirs(RESULTS_DIR, exist_ok=True)
