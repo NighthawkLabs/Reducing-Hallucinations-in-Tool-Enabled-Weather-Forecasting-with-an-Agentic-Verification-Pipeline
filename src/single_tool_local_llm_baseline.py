@@ -1,3 +1,20 @@
+"""
+Legacy local single-tool LLM baseline prototype.
+
+This file was an intermediate version of the single-tool baseline pipeline.
+It replaced the earlier OpenRouter/OpenAI version with a local llama-cpp model,
+but it still runs the forecasting tool for one request time at a time.
+
+This script was not used for the final evaluation results. The final project
+uses run_single_tool_on_eval_cases.py, which processes the shared
+eval_forecast_cases.jsonl file so the single-tool baseline and agentic
+verification system are evaluated on the same set of forecast cases.
+
+This file is kept in the repository for transparency and to show the evolution
+of the project pipeline. It should be treated as a legacy prototype rather than
+the final experimental runner.
+"""
+
 import os
 import json
 from datetime import datetime
@@ -7,9 +24,7 @@ from llama_cpp import Llama
 from predict_baseline import predict_weather_from_request_time
 
 
-# -----------------------------
 # Configuration
-# -----------------------------
 
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 RESULTS_DIR = os.path.join(SRC_DIR, "results")
@@ -31,9 +46,7 @@ if MODEL_PATH is None:
     )
 
 
-# -----------------------------
 # Load local LLM
-# -----------------------------
 
 llm = Llama(
     model_path=MODEL_PATH,
@@ -43,9 +56,7 @@ llm = Llama(
 )
 
 
-# -----------------------------
 # Forecasting tool
-# -----------------------------
 
 def weather_forecast_tool(request_time):
     """
@@ -55,9 +66,7 @@ def weather_forecast_tool(request_time):
     return predict_weather_from_request_time(request_time)
 
 
-# -----------------------------
 # Prompt formatting
-# -----------------------------
 
 def build_prompt(user_request, tool_output):
     """
@@ -90,9 +99,7 @@ Final answer:
     return prompt.strip()
 
 
-# -----------------------------
 # LLM response generation
-# -----------------------------
 
 def generate_local_llm_response(user_request, tool_output):
     prompt = build_prompt(user_request, tool_output)
@@ -109,10 +116,7 @@ def generate_local_llm_response(user_request, tool_output):
 
     return response_text
 
-
-# -----------------------------
 # Full baseline pipeline
-# -----------------------------
 
 def run_single_tool_local_llm_baseline(request_time):
     """
@@ -151,9 +155,7 @@ def run_single_tool_local_llm_baseline(request_time):
     return record
 
 
-# -----------------------------
 # Command line test
-# -----------------------------
 
 if __name__ == "__main__":
     import sys
