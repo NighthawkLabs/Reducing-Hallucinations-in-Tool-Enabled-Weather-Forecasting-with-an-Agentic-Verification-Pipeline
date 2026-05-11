@@ -6,31 +6,39 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-
-# -----------------------------
 # Configuration
-# -----------------------------
 
+# path to the cleaned dataset 
 DATA_PATH = "../data/clean/noaaDataCleaned.csv"
 
 MODEL_DIR = "models"
 RESULTS_DIR = "results"
 
+# Forecasting setup:
+# - use the previous 72 hours of observations as input
+# - predict weather conditions 24 hours into the future
 INPUT_WINDOW = 72
 FORECAST_HORIZON = 24
 
 DATE_COLUMN = "date"
 TARGET_COLUMNS = ["temperature", "dew_point", "wind_speed"]
 
+# Chronological train/test split. The first 80% of windows are used for
+# training, and the final 20% are used for testing.
 TRAIN_RATIO = 0.8
 RANDOM_STATE = 42
 
 
-# -----------------------------
 # Helper functions
-# -----------------------------
 
 def load_data(path):
+    """
+    Load the cleaned NOAA dataset and sort it chronologically.
+
+    Sorting by date is important because this is a time-series forecasting
+    setup. The model should only train and predict using correctly ordered
+    historical observations.
+    """
     df = pd.read_csv(path)
 
     df[DATE_COLUMN] = pd.to_datetime(df[DATE_COLUMN])
@@ -40,6 +48,22 @@ def load_data(path):
 
 
 def create_windows(df, input_window, forecast_horizon, target_columns):
+    """
+    Convert the hourly weather dataset into supervised learning examples.
+
+    Each example consists of:
+
+    X:
+        A window of the previous 72 hourly observations.
+
+    y:
+        The weather values 24 hours after the end of that input window.
+
+    For this project, each target contains:
+    - temperature
+    - dew point
+    - wind speed
+    """
     values = df[target_columns].values
 
     X = []
@@ -78,6 +102,12 @@ def flatten_windows(X):
 
 
 def train_time_split(X, y, dates, train_ratio):
+    """
+    Split the dataset chronologically into training and testing sets.
+
+    This avoids data leakage. A random split would mix future observations into
+    the training set, which would make the forecasting task less realistic.
+    """
     split_index = int(len(X) * train_ratio)
 
     X_train = X[:split_index]
@@ -93,6 +123,21 @@ def train_time_split(X, y, dates, train_ratio):
 
 
 def evaluate_model(model, X_test, y_test):
+    """
+    Evaluate the trained forecasting model on the held-out test set.
+
+    The model predicts three outputs:
+    - temperature
+    - dew point
+    - wind speed
+
+    For each output, this function calculates:
+    - MAE: average absolute prediction error
+    - RMSE: square-rooted average squared prediction error
+
+    MAE is the main metric used in the project because it is easy to interpret
+    in the original weather units.
+    """
     predictions = model.predict(X_test)
 
     results = {}
@@ -118,11 +163,25 @@ def evaluate_model(model, X_test, y_test):
     return results, predictions
 
 
-# -----------------------------
 # Main training pipeline
-# -----------------------------
 
 def main():
+    """
+    Train and evaluate the Random Forest forecasting baseline.
+
+    This script:
+    1. Loads the cleaned NOAA weather dataset
+    2. Creates 72-hour input windows and 24-hour-ahead targets
+    3. Splits the data chronologically into training and testing sets
+    4. Trains a multi-output Random Forest regressor
+    5. Evaluates forecast accuracy
+    6. Saves the trained model and result files
+
+    Note:
+    The saved model file, baseline_model.pkl, may be too large for GitHub.
+    If it is not included in the repository, regenerate it by running this
+    training script.
+    """
     os.makedirs(MODEL_DIR, exist_ok=True)
     os.makedirs(RESULTS_DIR, exist_ok=True)
 
