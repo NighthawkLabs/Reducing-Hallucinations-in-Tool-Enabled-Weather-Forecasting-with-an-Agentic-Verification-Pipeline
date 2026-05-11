@@ -113,6 +113,10 @@ The evaluation scripts compare the final LLM response against the expected struc
 
 ---
 
+## AI Disclosure
+
+In this project, I used ChatGPT and Claude for assistance with code debugging, documentation, and brainstorming
+
 ## Repository Structure
 
 ```text
