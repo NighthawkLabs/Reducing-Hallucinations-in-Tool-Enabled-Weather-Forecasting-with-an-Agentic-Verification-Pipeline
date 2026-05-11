@@ -1,11 +1,28 @@
+"""
+Legacy agentic evaluation runner.
+
+This file represents the first iteration of the script used to run the agentic
+verification pipeline on the generated weather forecast evaluation cases. It
+was used during earlier development to test the basic agentic workflow, where
+the system generated an initial response, checked it against the forecasting
+tool output, and attempted to produce a corrected final response.
+
+This script was replaced by run_agentic_on_eval_cases2.py after the pipeline
+and evaluation format were updated for the final project. The newer version is
+the one used for the final experiments and is better aligned with the updated
+hallucination evaluation scripts.
+
+This file is kept in the repository for transparency and to show how the
+agentic system evolved during development, but run_agentic_on_eval_cases2.py
+should be treated as the current final version.
+"""
+
 import json
 import os
 from llama_cpp import Llama
 
 
-# -----------------------------
 # Config
-# -----------------------------
 
 MODEL_PATH = "/home/sgibso34/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 
@@ -15,9 +32,7 @@ OUTPUT_JSONL = "results/agentic_eval_outputs.jsonl"
 MAX_CASES = None  # set to 5 for quick testing, or None for all cases
 
 
-# -----------------------------
 # Agentic Steps
-# -----------------------------
 
 def build_planning_prompt(case):
     return f"""You are part of an agentic weather forecasting system.
@@ -113,9 +128,7 @@ def build_verified_final_answer(verification):
     )
 
 
-# -----------------------------
 # Main
-# -----------------------------
 
 def main():
     os.makedirs("results", exist_ok=True)
