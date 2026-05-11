@@ -6,8 +6,11 @@ from llama_cpp import Llama
 
 # Config
 
+# Path to the local GGUF model used 
 MODEL_PATH = "/home/sgibso34/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
 
+# Build paths relative to this script so the runner can be executed from
+# different working directories without hardcoding project-wide paths.
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SRC_DIR)
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
@@ -17,6 +20,19 @@ OUTPUT_JSONL = os.path.join(RESULTS_DIR, "agentic_eval_outputs.jsonl")
 
 # Set to a small number like 5 for testing, or None to run all cases.
 MAX_CASES = None
+
+# Reproducibility note
+# ---------------------------------------------------------------------
+# The trained Random Forest model file, baseline_model.pkl, was not uploaded
+# to GitHub because it exceeded GitHub's file size limit. To regenerate the
+# saved forecasting model, run the training script:
+#
+#     python src/train_baseline.py
+#
+# After training, the baseline model should be saved in the expected models
+# directory and can be used to regenerate eval_forecast_cases.jsonl if needed.
+# ---------------------------------------------------------------------
+
 
 
 # File helpers
@@ -58,6 +74,13 @@ def build_tool_output(case):
 
 
 def build_planning_prompt(case):
+    """
+    Build the prompt used for the agent's planning step.
+
+    The LLM is asked only to make a short plan. It is not allowed to produce
+    the final weather forecast here. This separates the agentic reasoning step
+    from the deterministic verified final-answer step.
+    """
     tool_output = build_tool_output(case)
 
     return f"""You are part of an agentic weather forecasting system.
@@ -81,6 +104,13 @@ Do not produce the final weather forecast in this planning step.
 
 
 def generate_agent_plan(llm, prompt):
+    """
+    Generate the agent's short planning response using the local LLM.
+
+    The planning text is saved for transparency, but it is not trusted as the
+    final answer. The final response is built separately from verified
+    structured values.
+    """
     output = llm(
         prompt,
         max_tokens=160,
